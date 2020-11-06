@@ -7,33 +7,43 @@ const typeDefs = gql`
             title:String!
             info:String
             answer:String!
+            choices: [String]!
         }
    
+        type Answer {
+            player: String!
+            answer: String
+            questionId: Int
+            rightAnswer: Boolean
+        }
     type Game {
         id:ID!
-        activeGame: Boolean
-        questionPhase: Boolean
-        answers: [Answer]
-        results: [String]
-    }
-    type Answer {
-        player: String!
-        answer: String
-        questionId: Int
+        active: Boolean
+        questionAmount: Int
+        isQuestionPhase: Boolean
+        questions: [Question]
+        question: Question
+        results: [Answer]
     }
         
     type Query {
         questions: [Question]!
         question(id:ID!): Question
         randomQuestion: Question
+        answers: [Answer]
+        game:Game
     }
     
     type Mutation {
             answer(player: String!, answer: String!, questionId: String!): String
+            startGame:String
+            playGame:String
+            endGame:String
         }
 
     type Subscription {
-            newGame: Game!
+            answers: [Answer]
+            game:Game
         }
 `;
 

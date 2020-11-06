@@ -6,4 +6,8 @@ body {
   box-sizing: border-box;
   background: #FDFBFB;
   min-height: 100vh;
+  font-size: 16px;
+  color:#30343F;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300; 
 }

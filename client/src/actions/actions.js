@@ -1,15 +1,33 @@
 import {START, ENTER_QP, EXIT_QP, SET_PLAYER, TOGGLE_ANSWER, SET_QUESTION_ID} from './types';
-export const startGame = () => (dispatch) => {
+export const startGame = () => async (dispatch) => {
       dispatch({
         type: START,
       });
-   
+
+      // function sleep(ms) {
+      //   return new Promise(resolve => setTimeout(resolve, ms));
+      // }
+      
+      // async function delayedGreeting() {
+      //   console.log("Hello");
+      //   await sleep(2000);
+      //   console.log("World!");
+      //   await sleep(2000);
+      //   console.log("Goodbye!");
+      // }
+      
+      // delayedGreeting();
+      // dispatch({
+      //   type: ENTER_QP,
+      //   payload: id,
+      // });
   };
   
-export const enterQuestionPhase = () => (dispatch) => {
-      dispatch({
-        type: ENTER_QP
-      });
+export const enterQuestionPhase = (questionId) => (dispatch) => {
+  dispatch({
+    type: ENTER_QP,
+    payload: questionId,
+  });
   };
 export const exitQuestionPhase = () => (dispatch) => {
       dispatch({

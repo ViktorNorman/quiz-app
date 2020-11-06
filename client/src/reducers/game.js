@@ -1,17 +1,25 @@
 import {START, ENTER_QP, EXIT_QP, SET_PLAYER, TOGGLE_ANSWER, SET_QUESTION_ID} from '../actions/types';
 
 const initState = {
-    isGame: true, //Ska vara false
+    isGame: false, //Ska vara false
     questionPhase:false,
     room: 1337,
     answerPhase:false,
-    questionId: null,
-    player:"",
-    player1: "",
-    player2: "",
-    player3: "",
-    player4: "",
+    questionId: "",
   };
+
+  // id
+  // 	active
+  //   questionPhase
+  //   questions{
+  //     id
+  //     category
+  //     title
+  //     info
+  //     answer
+  //     choices
+  //   }
+  //   results
   
   export default function reducer(state = initState, action) {
     console.log(state, action)
@@ -19,19 +27,23 @@ const initState = {
       case START: {
         return {
           ...state,
+          isGame:true,
+          // questionPhase:true,
         };
       }
       case ENTER_QP: {
         return {
           ...state,
           questionPhase:true,
-          answerPhase:false
+          answerPhase:false,
+          // questionId: action.payload,
         };
       }
       case EXIT_QP: {
         return {
           ...state,
-          questionPhase:false
+          questionPhase:false,
+          // questionId: null,
         };
       }
       case TOGGLE_ANSWER: {
