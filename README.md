@@ -1,4 +1,4 @@
-# quiz-app
+# Quiz-app
 
 Quiz-app is a multiplayer game where you can beat your friends by answering the correct answer fastest! This project was my contribution to the Hackday we had at </Salt>, where us students were allowed to create any app with a front- and backend in 24 hours.
 
