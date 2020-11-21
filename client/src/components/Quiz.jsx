@@ -1,53 +1,17 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { gql, useMutation, useSubscription } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
+
+import Choice from './Choice';
+import Answers from './Answers';
 import {
   startGame,
   enterQuestionPhase,
   exitQuestionPhase,
   setQuestionID,
 } from '../actions/actions';
-import Choice from './Choice';
-import Answers from './Answers';
-
-// const delay = 30000;
-
-const GET_GAME = gql`
-  subscription($gameID: Int, $player: String) {
-    gameMode(gameID: $gameID, player: $player) {
-      id
-      active
-      question {
-        id
-        category
-        title
-        info
-        answer
-        choices
-      }
-      results {
-        player
-        answer
-        questionId
-        rightAnswer
-      }
-      players
-      isQuestionPhase
-    }
-  }
-`;
-
-const START_SERVER = gql`
-  mutation($gameID: Int, $player: String) {
-    startGame(gameID: $gameID, player: $player)
-  }
-`;
-// const PLAY_GAME = gql`
-//   mutation {
-//     playGame
-//   }
-// `;
+import { START_SERVER, GET_GAME } from '../typeDefs/typeDefs';
 
 function FormatText(props) {
   let info = props.info;
@@ -57,16 +21,17 @@ function FormatText(props) {
 
 //add routing if one of the players have started the game? Or perhaps only Host can start?
 const Quiz = ({ isGame, player, startGame, room, host }) => {
-  const [counter, setCounter] = React.useState(0);
   const [playGame] = useMutation(START_SERVER);
   const { data, loading, error } = useSubscription(GET_GAME, {
     variables: { gameID: room, player: player },
   });
 
   if (!player) return <Redirect to="/" />;
+  if (loading) return <p>Loading..</p>;
+  if (error) return <p>An error occurred: {error}</p>;
+  const { active, results, question, isQuestionPhase, players } = data.gameMode;
 
   const newGame = async () => {
-    // console.log(typeof room);
     playGame({ variables: { gameID: room, player: player } });
     startGame();
   };
@@ -76,9 +41,9 @@ const Quiz = ({ isGame, player, startGame, room, host }) => {
   const leaveGame = async () => {
     console.log('leaveGame');
   };
+  console.log(data);
 
-  //List all the players?
-  if (!isGame)
+  if (!active)
     return host ? (
       <>
         <button className="question__button" onClick={() => newGame()}>
@@ -88,7 +53,9 @@ const Quiz = ({ isGame, player, startGame, room, host }) => {
           Leave game
         </button>
         <h5 className="landing__rooms">Joined players</h5>
-        <p>{player}(You)</p>
+        {players.map((p) => (
+          <p>{p === player ? `${p}(You)` : p}</p>
+        ))}
       </>
     ) : (
       <>
@@ -99,17 +66,11 @@ const Quiz = ({ isGame, player, startGame, room, host }) => {
           Leave game
         </button>
         <h5 className="landing__rooms">Joined players</h5>
-        <p>You ({player})</p>
-        <p>You ({player})</p>
+        {players.map((p) => (
+          <p>{p === player ? `${p}(You)` : p}</p>
+        ))}
       </>
     );
-
-  if (loading) return <p>Loading..</p>;
-  if (error) return <p>An error occurred</p>;
-  const { active, results, question, isQuestionPhase, players } = data.gameMode;
-  if (!question) return null;
-
-  console.log(players, results);
 
   const filteredResults = results.filter((result) => result.rightAnswer);
   if (!active) {
@@ -134,6 +95,7 @@ const Quiz = ({ isGame, player, startGame, room, host }) => {
     );
   }
 
+  if (!question) return null;
   return isQuestionPhase ? (
     <>
       <div className="quiz">
@@ -165,10 +127,10 @@ const Quiz = ({ isGame, player, startGame, room, host }) => {
 };
 
 const mapStateToProps = (state) => ({
-  isGame: state.game.isGame,
-  questionPhase: state.game.questionPhase,
+  // isGame: state.game.isGame,
+  // questionPhase: state.game.questionPhase,
   room: state.game.room,
-  answerPhase: state.game.answerPhase,
+  // answerPhase: state.game.answerPhase,
   player: state.game.player,
   questionId: state.game.questionId,
   host: state.game.host,

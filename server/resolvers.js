@@ -40,14 +40,12 @@ const answerPhase = async (start) => {
     await sleep(1000);
     time = Date.now();
   }
-
   answers.forEach((answer) => {
     answer.rightAnswer = false;
     if (answer.answer === game.question.answer) {
       answer.rightAnswer = true;
     }
   });
-
   allAnswers.push(answers);
   answers = [];
 };
@@ -83,7 +81,10 @@ module.exports = {
           console.log(`Client ${player} connected to ${gameID}`);
           game.players.push(player);
         }
+        // onAnswersUpdates(() => pubsub.publish(`Game ${gameID}`, { game }));
+        // setTimeout(() => pubsub.publish(`Game ${gameID}`, { game }), 0);
         pubsub.publish(`Game ${game.id}`, { gameMode: game });
+        pubsub.publish(`Game ${game.id}`, { gameMode: game }, 0);
         // console.log(`Connected players: ${game.players}`);
         return pubsub.asyncIterator(`Game ${gameID}`);
       },
@@ -140,6 +141,7 @@ module.exports = {
       pubsub.publish(`Game ${game.id}`, { gameMode: game });
       game.players = [];
       console.log('Game Finished');
+      game.result = [];
       return 'Game Finished';
     },
   },

@@ -20,6 +20,7 @@ const Landing = ({ room, setPlayer }) => {
     // redirect to /host or /host/roomnumber?
   };
   const joinGame = () => {
+    //set id and use for player
     const payload = { name: playerName, host: false };
     setPlayer(payload);
   };
