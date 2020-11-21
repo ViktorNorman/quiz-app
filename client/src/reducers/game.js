@@ -13,10 +13,12 @@ const initState = {
   room: 1337,
   answerPhase: false,
   questionId: '',
+  host: false,
+  player: '',
 };
 
 export default function reducer(state = initState, action) {
-  console.log(state, action);
+  // console.log(state, action);
   switch (action.type) {
     case START: {
       return {
@@ -50,7 +52,8 @@ export default function reducer(state = initState, action) {
     case SET_PLAYER: {
       return {
         ...state,
-        player: action.payload,
+        player: action.payload.name,
+        host: action.payload.host,
       };
     }
     case SET_QUESTION_ID: {

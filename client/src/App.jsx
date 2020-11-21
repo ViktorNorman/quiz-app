@@ -14,7 +14,7 @@ function App() {
             <Banner />
             <Quiz />
           </Route>
-          <Route path="/join">
+          <Route path="/game/:gameID">
             <Banner />
             <Quiz />
           </Route>

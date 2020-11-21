@@ -27,10 +27,10 @@ export const exitQuestionPhase = () => (dispatch) => {
   });
 };
 
-export const setPlayer = (name) => (dispatch) => {
+export const setPlayer = (payload) => (dispatch) => {
   dispatch({
     type: SET_PLAYER,
-    payload: name,
+    payload,
   });
 };
 export const showAnswer = () => (dispatch) => {

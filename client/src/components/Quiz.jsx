@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { gql, useMutation, useSubscription } from '@apollo/client';
@@ -11,7 +11,7 @@ import {
 import Choice from './Choice';
 import Answers from './Answers';
 
-const delay = 30000;
+// const delay = 30000;
 
 const GET_GAME = gql`
   subscription($gameID: Int, $player: String) {
@@ -55,37 +55,51 @@ function FormatText(props) {
   return info.split('\n').map((str) => <p className="quiz__text">{str}</p>);
 }
 
-const Quiz = ({ isGame, player, startGame, room }) => {
+//add routing if one of the players have started the game? Or perhaps only Host can start?
+const Quiz = ({ isGame, player, startGame, room, host }) => {
   const [counter, setCounter] = React.useState(0);
   const [playGame] = useMutation(START_SERVER);
   const { data, loading, error } = useSubscription(GET_GAME, {
     variables: { gameID: room, player: player },
   });
 
-  useEffect(() => {
-    const timer =
-      counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
-    return () => clearInterval(timer);
-  }, [counter]);
-
   if (!player) return <Redirect to="/" />;
 
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
   const newGame = async () => {
     // console.log(typeof room);
     playGame({ variables: { gameID: room, player: player } });
     startGame();
   };
+  const ready = async () => {
+    console.log('ready');
+  };
+  const leaveGame = async () => {
+    console.log('leaveGame');
+  };
 
+  //List all the players?
   if (!isGame)
-    return (
+    return host ? (
       <>
         <button className="question__button" onClick={() => newGame()}>
           Start quiz!
         </button>
+        <button className="question__button" onClick={() => leaveGame()}>
+          Leave game
+        </button>
         <h5 className="landing__rooms">Joined players</h5>
+        <p>{player}(You)</p>
+      </>
+    ) : (
+      <>
+        <button className="question__button" onClick={() => ready()}>
+          Ready to play
+        </button>
+        <button className="question__button" onClick={() => leaveGame()}>
+          Leave game
+        </button>
+        <h5 className="landing__rooms">Joined players</h5>
+        <p>You ({player})</p>
         <p>You ({player})</p>
       </>
     );
@@ -98,7 +112,6 @@ const Quiz = ({ isGame, player, startGame, room }) => {
   console.log(players, results);
 
   const filteredResults = results.filter((result) => result.rightAnswer);
-
   if (!active) {
     return (
       <>
@@ -158,6 +171,7 @@ const mapStateToProps = (state) => ({
   answerPhase: state.game.answerPhase,
   player: state.game.player,
   questionId: state.game.questionId,
+  host: state.game.host,
 });
 
 export default connect(mapStateToProps, {

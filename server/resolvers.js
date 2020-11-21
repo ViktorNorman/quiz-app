@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { subscribe } = require('graphql');
 const util = require('util');
 
 const readFile = util.promisify(fs.readFile);
@@ -18,12 +19,18 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const questionPhase = async (start) => {
+const questionPhase = async (start, pubsub, gameID) => {
   console.log('questionPhase');
   let time = start;
+  game.count = (delay + 1000) / 1000;
   while (time < start + delay + 1000 && answers.length < game.players.length) {
     await sleep(1000);
     time = Date.now();
+    // console.log(time);
+    game.count--;
+    console.log(game.count);
+    // pubsub.publish(`Timer ${game.id}`, { count });
+    // pubsub.publish(`Game ${gameID}`, { game });
   }
 };
 const answerPhase = async (start) => {
@@ -54,27 +61,37 @@ const game = {
   question: null,
   results: [],
   players: [],
+  count: 0,
 };
 
 module.exports = {
   Subscription: {
     answers: {
       subscribe: (_, __, { pubsub }) => {
-        onAnswersUpdates(() => pubsub.publish(game.id, { answers }));
-        setTimeout(() => pubsub.publish(game.id, { answers }), 0);
-        return pubsub.asyncIterator(game.id);
+        onAnswersUpdates(() =>
+          pubsub.publish(`Answers ${game.id}`, { answers })
+        );
+        setTimeout(() => pubsub.publish(`Answers ${game.id}`, { answers }), 0);
+        return pubsub.asyncIterator(`Answers ${game.id}`);
       },
     },
+    //add withfilter??
     gameMode: {
       subscribe: (_, { gameID, player }, { pubsub }) => {
-        console.log(`Client ${player} connected to ${gameID}`);
         game.id = gameID;
         if (player && !game.players.includes(player)) {
+          console.log(`Client ${player} connected to ${gameID}`);
           game.players.push(player);
         }
         pubsub.publish(`Game ${game.id}`, { gameMode: game });
         // console.log(`Connected players: ${game.players}`);
         return pubsub.asyncIterator(`Game ${gameID}`);
+      },
+    },
+    timer: {
+      subscribe: (_, { gameID }, { pubsub }) => {
+        console.log('subscribed');
+        return pubsub.asyncIterator(`Timer ${game.id}`);
       },
     },
   },
@@ -101,7 +118,7 @@ module.exports = {
         subscribers.forEach((fn) => fn());
         return 'Answer Received!';
       }
-      return 'Duplicate answer!';
+      return 'Duplicate answers!';
     },
     startGame: async (_, { gameID, player }, { pubsub }) => {
       if (gameID !== game.id) return 'no game with provided id found';
@@ -113,7 +130,7 @@ module.exports = {
         game.isQuestionPhase = true;
         game.question = questions[i];
         pubsub.publish(`Game ${game.id}`, { gameMode: game });
-        await questionPhase(Date.now());
+        await questionPhase(Date.now(), pubsub, gameID);
         game.isQuestionPhase = false;
         pubsub.publish(`Game ${game.id}`, { gameMode: game });
         await answerPhase(Date.now());
@@ -121,6 +138,7 @@ module.exports = {
       game.results = allAnswers.flat();
       game.active = false;
       pubsub.publish(`Game ${game.id}`, { gameMode: game });
+      game.players = [];
       console.log('Game Finished');
       return 'Game Finished';
     },

@@ -25,6 +25,7 @@ const typeDefs = gql`
     question: Question
     results: [Answer]
     players: [String]
+    count: Int
   }
 
   type Query {
@@ -45,6 +46,7 @@ const typeDefs = gql`
   type Subscription {
     answers: [Answer]
     gameMode(gameID: Int, player: String): Game
+    timer: Int
   }
 `;
 
