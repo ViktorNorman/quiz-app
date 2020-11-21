@@ -4,24 +4,24 @@ Quiz-app is a multiplayer game where you can beat your friends by answering the 
 
 ## Try it out: 
 
-(Will soon add :) ) 
+(Will soon add link:) ) 
 
 ## Technologies used:
 ### Backend:
-Node
-GraphQL (w subscriptions)
+- Node
+- GraphQL (w subscriptions)
 
 ### Frontend:
-React
-GraphQL (w subscriptions)
-Redux
-Hooks
+- React
+- GraphQL (w subscriptions)
+- Redux
+- Hooks
 
 ## Features:
-Quiz game
-Multiplayer functionality
+- Quiz game
+- Multiplayer functionality
 
 ## Further improvements:
-Add more questions and categories
-Add database
-Add accounts and friends
+- Add more questions and categories
+- Add database
+- Add accounts and friends
