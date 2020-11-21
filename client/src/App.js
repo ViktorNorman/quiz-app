@@ -5,23 +5,22 @@ import Banner from './components/Banner';
 import Quiz from './components/Quiz';
 import Landing from './components/Landing';
 
-
 function App() {
   return (
     <Router>
       <div className="app">
         <Switch>
-        <Route path="/host">
-          <Banner />
-          <Quiz />
-        </Route>
-        <Route path="/join">
-          <Banner />
-          <Quiz />
-        </Route>
-        <Route path="/">
-          <Landing />
-        </Route>
+          <Route path="/host">
+            <Banner />
+            <Quiz />
+          </Route>
+          <Route path="/join">
+            <Banner />
+            <Quiz />
+          </Route>
+          <Route path="/">
+            <Landing />
+          </Route>
         </Switch>
       </div>
     </Router>

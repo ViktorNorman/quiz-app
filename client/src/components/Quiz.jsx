@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { useQuery, gql, useMutation, useSubscription } from '@apollo/client';
+import { gql, useMutation, useSubscription } from '@apollo/client';
 import {
   startGame,
   enterQuestionPhase,
   exitQuestionPhase,
   setQuestionID,
 } from '../actions/actions';
-import { Redirect } from 'react-router-dom';
 import Choice from './Choice';
 import Answers from './Answers';
 
 const delay = 30000;
 
 const GET_GAME = gql`
-  subscription {
-    game {
+  subscription($gameID: Int, $player: String) {
+    gameMode(gameID: $gameID, player: $player) {
       id
       active
       question {
@@ -32,21 +32,22 @@ const GET_GAME = gql`
         questionId
         rightAnswer
       }
+      players
       isQuestionPhase
     }
   }
 `;
 
 const START_SERVER = gql`
-  mutation {
-    startGame
+  mutation($gameID: Int, $player: String) {
+    startGame(gameID: $gameID, player: $player)
   }
 `;
-const PLAY_GAME = gql`
-  mutation {
-    playGame
-  }
-`;
+// const PLAY_GAME = gql`
+//   mutation {
+//     playGame
+//   }
+// `;
 
 function FormatText(props) {
   let info = props.info;
@@ -54,18 +55,12 @@ function FormatText(props) {
   return info.split('\n').map((str) => <p className="quiz__text">{str}</p>);
 }
 
-const Quiz = ({
-  isGame,
-  questionPhase,
-  player,
-  questionId,
-  enterQuestionPhase,
-  exitQuestionPhase,
-  startGame,
-}) => {
+const Quiz = ({ isGame, player, startGame, room }) => {
   const [counter, setCounter] = React.useState(0);
-  const [getGame] = useMutation(START_SERVER);
-  const [playGame] = useMutation(PLAY_GAME);
+  const [playGame] = useMutation(START_SERVER);
+  const { data, loading, error } = useSubscription(GET_GAME, {
+    variables: { gameID: room, player: player },
+  });
 
   useEffect(() => {
     const timer =
@@ -73,30 +68,16 @@ const Quiz = ({
     return () => clearInterval(timer);
   }, [counter]);
 
-  const { data, loading, error } = useSubscription(GET_GAME);
-
   if (!player) return <Redirect to="/" />;
-  if (loading) return <p>Loading..</p>;
 
-  if (error) return <p>An error occurred</p>;
-  const {
-    active,
-    id,
-    questions,
-    results,
-    question,
-    isQuestionPhase,
-  } = data.game;
   function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
-
-  const newGame = async (id) => {
-    getGame();
-    // playGame();
+  const newGame = async () => {
+    // console.log(typeof room);
+    playGame({ variables: { gameID: room, player: player } });
     startGame();
   };
-
 
   if (!isGame)
     return (
@@ -104,10 +85,17 @@ const Quiz = ({
         <button className="question__button" onClick={() => newGame()}>
           Start quiz!
         </button>
+        <h5 className="landing__rooms">Joined players</h5>
+        <p>You ({player})</p>
       </>
     );
 
+  if (loading) return <p>Loading..</p>;
+  if (error) return <p>An error occurred</p>;
+  const { active, results, question, isQuestionPhase, players } = data.gameMode;
   if (!question) return null;
+
+  console.log(players, results);
 
   const filteredResults = results.filter((result) => result.rightAnswer);
 
@@ -115,34 +103,33 @@ const Quiz = ({
     return (
       <>
         <div className="quiz">
-          <h4 className="quiz__title">
-            You did good! Here is your result...
-          </h4>
+          <h4 className="quiz__title">You did good! Here is your result...</h4>
           <p className="quiz__title">
             You got {filteredResults.length} points!{' '}
           </p>
           <h4 className="quiz__title"> Correct Answers</h4>
           {filteredResults.map((result) => (
-            <p className="quiz__title">{filteredResults.length >0 ? result.answer: 'None.. this time!'} </p>
+            <p className="quiz__title">
+              {filteredResults.length > 0 ? result.answer : 'None.. this time!'}{' '}
+            </p>
           ))}
         </div>
         <button className="question__button" onClick={() => newGame()}>
           Play again?
         </button>
-        </>
+      </>
     );
   }
-
 
   return isQuestionPhase ? (
     <>
       <div className="quiz">
-    {/* <div className="container"> */}
+        {/* <div className="container"> */}
         <h4 className="quiz__title">{question.title}</h4>
         {/* <div className="container"> */}
         <FormatText info={question.info} />
         {/* </div> */}
-      {/* </div> */}
+        {/* </div> */}
       </div>
       <div className="quiz__choices">
         {' '}
@@ -150,20 +137,19 @@ const Quiz = ({
           <Choice choice={choice} questionId={question.id} key={choice} />
         ))}
       </div>
-      </>
+    </>
   ) : (
     <>
-    <div className="quiz">
-      <h4 className="quiz__title">The correct answer is...🥁</h4>
-      <p className="quiz__title" info>
-        {question.answer}
-      </p>
+      <div className="quiz">
+        <h4 className="quiz__title">The correct answer is...🥁</h4>
+        <p className="quiz__title" info>
+          {question.answer}
+        </p>
       </div>
       <Answers isQuestionPhase={isQuestionPhase} />
-      </>
+    </>
   );
 };
-
 
 const mapStateToProps = (state) => ({
   isGame: state.game.isGame,
