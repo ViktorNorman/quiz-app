@@ -37,7 +37,12 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    answer(player: String!, answer: String!, questionId: String!): String
+    answer(
+      gameID: Int
+      player: String!
+      answer: String!
+      questionId: String!
+    ): String
     startGame(gameID: Int, player: String): String
     joinGame: String
     endGame: String
@@ -45,7 +50,7 @@ const typeDefs = gql`
 
   type Subscription {
     answers: [Answer]
-    gameMode(gameID: Int, player: String): Game
+    gameMode(gameID: Int, player: String, host: Boolean): Game
     timer: Int
   }
 `;

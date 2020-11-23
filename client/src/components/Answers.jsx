@@ -5,6 +5,7 @@ import { useSubscription, gql } from '@apollo/client';
 const GET_ANSWERS = gql`
   subscription {
     answers {
+      gameID
       player
       answer
       questionId

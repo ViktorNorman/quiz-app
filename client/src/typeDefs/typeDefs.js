@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GET_GAME = gql`
-  subscription($gameID: Int, $player: String) {
-    gameMode(gameID: $gameID, player: $player) {
+  subscription($gameID: Int, $player: String, $host: Boolean) {
+    gameMode(gameID: $gameID, player: $player, host: $host) {
       id
       active
       question {

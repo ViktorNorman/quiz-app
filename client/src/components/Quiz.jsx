@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { useMutation, useSubscription } from '@apollo/client';
@@ -22,9 +22,16 @@ function FormatText(props) {
 //add routing if one of the players have started the game? Or perhaps only Host can start?
 const Quiz = ({ isGame, player, startGame, room, host }) => {
   const [playGame] = useMutation(START_SERVER);
+
+  useEffect(() => {
+    //Query med gameMode data?
+  }, []);
+
   const { data, loading, error } = useSubscription(GET_GAME, {
-    variables: { gameID: room, player: player },
+    variables: { gameID: room, player: player, host },
   });
+
+  console.log(data);
 
   if (!player) return <Redirect to="/" />;
   if (loading) return <p>Loading..</p>;

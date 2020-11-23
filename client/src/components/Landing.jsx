@@ -6,18 +6,14 @@ import { setPlayer } from '../actions/actions';
 
 const Landing = ({ room, setPlayer }) => {
   const [playerName, setPlayerName] = useState('');
-  // const [playerName, setPlayerName] = useState('');
-  console.log(room);
   const hostGame = () => {
     console.log('hostGame');
-    //Slumpa ett namn?
+    //Slumpa ett rum?
     const payload = { name: playerName, host: true };
     console.log(payload);
     setPlayer(payload);
     // create a new game
     // let game = newGame();
-    //publish subscription to game
-    // redirect to /host or /host/roomnumber?
   };
   const joinGame = () => {
     //set id and use for player

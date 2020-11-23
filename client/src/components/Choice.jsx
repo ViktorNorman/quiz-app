@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { exitQuestionPhase } from '../actions/actions';
 import { gql, useMutation } from '@apollo/client';
 
 const POST_ANSWER = gql`
-  mutation($player: String!, $answer: String!, $questionId: String!) {
-    answer(player: $player, answer: $answer, questionId: $questionId)
+  mutation(
+    $gameID: Int
+    $player: String!
+    $answer: String!
+    $questionId: String!
+  ) {
+    answer(
+      gameID: $gameID
+      player: $player
+      answer: $answer
+      questionId: $questionId
+    )
   }
 `;
 
-const Choice = ({ choice, player, questionId, exitQuestionPhase }) => {
+const Choice = ({ choice, player, questionId, room }) => {
   const [input, setInput] = useState({
+    gameID: room,
     player: `${player}`,
     answer: `${choice}`,
     questionId: `${questionId}`,
@@ -41,7 +51,7 @@ const Choice = ({ choice, player, questionId, exitQuestionPhase }) => {
 
 const mapStateToProps = (state) => ({
   player: state.game.player,
-  //   questionId: state.game.questionId,
+  room: state.game.room,
 });
 
-export default connect(mapStateToProps, { exitQuestionPhase })(Choice);
+export default connect(mapStateToProps)(Choice);
